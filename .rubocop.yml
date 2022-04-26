@@ -7,7 +7,6 @@ AllCops:
     - 'db/**/*'
     - 'Gemfile'
     - 'Guardfile'
-    - 'lib/tasks/webpacker.rake'
     - 'node_modules/**/*'
     - 'Rakefile'
     - 'script/**/*'
