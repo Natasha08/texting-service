@@ -24,6 +24,8 @@ Layout/SpaceAroundEqualsInParameterDefault:
   EnforcedStyle: no_space
 Layout/SpaceInsideHashLiteralBraces:
   EnforcedStyle: no_space
+Layout/FirstHashElementIndentation:
+  EnforcedStyle: consistent
 Lint/AmbiguousBlockAssociation:
   Exclude:
     - 'spec/**/*'
@@ -65,3 +67,7 @@ Style/SymbolArray:
   EnforcedStyle: brackets
 Style/WordArray:
   EnforcedStyle: brackets
+Style/RescueStandardError:
+  Enabled: false
+Style/ClassVars:
+  Enabled: false

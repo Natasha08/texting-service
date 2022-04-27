@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-fdescribe 'Text Messages' do
+describe 'Text Messages' do
   context "#index" do
     let!(:text_messages) { create_list :text_message, 3 }
 
@@ -16,12 +16,12 @@ fdescribe 'Text Messages' do
     let(:sms_message_id) { 'k3i2-f02k-8dhq-v8wj' }
 
     before do
-      message_id =
-      stub_request(:post, "#{ENV['SMS_PROVIDER']}/dev/provider1").to_return({
-        body: { message_id: sms_message_id }.to_json,
-        headers: { "Content-Type"=> "application/json" }
-      })
-      post "/api/v1/text_messages", params: { text: "This is a great message", to_number: "555-555-5555" }
+      stub_request(:post, "#{ENV.fetch('SMS_PROVIDER', nil)}/dev/provider1")
+        .to_return({
+          body: {message_id: sms_message_id}.to_json,
+          headers: {"Content-Type" => "application/json"}
+        })
+      post "/api/v1/text_messages", params: {text: "This is a great message", to_number: "555-555-5555"}
     end
 
     it "responds with status 200" do
@@ -29,7 +29,7 @@ fdescribe 'Text Messages' do
       expect(response.code).to eq("200")
       expect(text_message.sms_message_id).to eq sms_message_id
 
-      post "/api/v1/delivery_status", params: { message_id: text_message.sms_message_id, status: "delivered" }
+      post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}
 
       expect(response.code).to eq("204")
       updated_message = text_message.reload
@@ -45,16 +45,17 @@ fdescribe 'Text Messages' do
       let!(:text_message) { create :text_message, sms_message_id: nil }
 
       before do
-        stub_request(:post, "#{ENV['SMS_PROVIDER']}/dev/provider1").to_return({
-          body: { message_id: sms_message_id }.to_json,
-          headers: { "Content-Type"=> "application/json" }
-        })
+        stub_request(:post, "#{ENV.fetch('SMS_PROVIDER', nil)}/dev/provider1")
+          .to_return({
+            body: {message_id: sms_message_id}.to_json,
+            headers: {"Content-Type" => "application/json"}
+          })
       end
 
       it "it updates the text message" do
         SMSService.new(text_message).send
 
-        post "/api/v1/delivery_status", params: { message_id: text_message.sms_message_id, status: "delivered" }
+        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}
 
         expect(response.code).to eq("204")
         updated_message = text_message.reload
@@ -69,15 +70,17 @@ fdescribe 'Text Messages' do
       let!(:text_message) { create :text_message, sms_message_id: nil }
 
       before do
-        stub_request(:post, "#{ENV['SMS_PROVIDER']}/dev/provider1").to_return({
-          body: { status: 502, error: "something went wrong" }.to_json,
-          headers: { "Content-Type"=> "application/json" }
-        })
+        stub_request(:post, "#{ENV.fetch('SMS_PROVIDER', nil)}/dev/provider1")
+          .to_return({
+            body: {status: 502, error: "something went wrong"}.to_json,
+            headers: {"Content-Type" => "application/json"}
+          })
 
-        stub_request(:post, "#{ENV['SMS_PROVIDER']}/dev/provider2").to_return({
-          body: { status: 204, message_id: sms_message_id }.to_json,
-          headers: { "Content-Type"=> "application/json" }
-        })
+        stub_request(:post, "#{ENV.fetch('SMS_PROVIDER', nil)}/dev/provider2")
+          .to_return({
+            body: {status: 204, message_id: sms_message_id}.to_json,
+            headers: {"Content-Type" => "application/json"}
+          })
       end
 
       it "it retries with the second provider" do
@@ -87,7 +90,7 @@ fdescribe 'Text Messages' do
         expect(text_message.resolved).to eq false
         expect(text_message.sms_message_id).to eq sms_message_id
 
-        post "/api/v1/delivery_status", params: { message_id: text_message.sms_message_id, status: "delivered" }
+        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}
 
         updated_message = text_message.reload
         expect(response.code).to eq("204")
@@ -101,15 +104,17 @@ fdescribe 'Text Messages' do
       let!(:text_message) { create :text_message, sms_message_id: nil }
 
       before do
-        stub_request(:post, "#{ENV['SMS_PROVIDER']}/dev/provider1").to_return({
-          body: { status: 502, error: "something went wrong" }.to_json,
-          headers: { "Content-Type"=> "application/json" }
-        })
+        stub_request(:post, "#{ENV.fetch('SMS_PROVIDER', nil)}/dev/provider1")
+          .to_return({
+            body: {status: 502, error: "something went wrong"}.to_json,
+            headers: {"Content-Type" => "application/json"}
+          })
 
-        stub_request(:post, "#{ENV['SMS_PROVIDER']}/dev/provider2").to_return({
-          body: { status: 502, error: "something went wrong" }.to_json,
-          headers: { "Content-Type"=> "application/json" }
-        })
+        stub_request(:post, "#{ENV.fetch('SMS_PROVIDER', nil)}/dev/provider2")
+          .to_return({
+            body: {status: 502, error: "something went wrong"}.to_json,
+            headers: {"Content-Type" => "application/json"}
+          })
       end
 
       it "it updates the text message" do
@@ -126,7 +131,7 @@ fdescribe 'Text Messages' do
       let!(:text_message) { create :text_message, status: original_status, resolved: true }
 
       it "it does not update the text message" do
-        post "/api/v1/delivery_status", params: { message_id: text_message.sms_message_id, status: "failure" }
+        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "failure"}
 
         expect(response.code).to eq("204")
         expect(text_message.status).to eq original_status

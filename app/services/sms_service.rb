@@ -2,7 +2,7 @@ require 'httparty'
 
 class SMSService
   include HTTParty
-  base_uri ENV['SMS_PROVIDER']
+  base_uri ENV.fetch('SMS_PROVIDER', nil)
 
   @@instances = []
 
@@ -15,7 +15,7 @@ class SMSService
     @params = {
       message: text_message[:text],
       to_number: text_message[:to_number],
-      callback_url: "#{ENV["SMS_CALLBACK_DOMAIN"]}/api/v1/delivery_status"
+      callback_url: "#{ENV.fetch('SMS_CALLBACK_DOMAIN', nil)}/api/v1/delivery_status"
     }
   end
 
@@ -40,25 +40,17 @@ class SMSService
   def send
     if @params[:to_number].blank? || @params[:message].blank?
       {status: 'invalid'}
-      #send action cable message
+      # send action cable message
     else
       @attempts += 1
 
       begin
-        post_path = @retry_attempted ? retry_path : path
-        response = self.class.post(post_path, options).parsed_response.deep_symbolize_keys!
-
-        if response[:message_id]
-          @text_message.update sms_message_id: response[:message_id]
-          #send action cable message
-        else
-          raise "message failed to post"
-        end
+        send_message
       rescue
         retry if (@attempts += 1) < 3
 
         if @retry_attempted
-          #send action cable message
+          # send action cable message
           @text_message.update(status: "failure", resolved: true)
         else
           retry_send
@@ -69,6 +61,18 @@ class SMSService
 
   private
 
+  def send_message
+    post_path = @retry_attempted ? retry_path : path
+    response = self.class.post(post_path, options).parsed_response.deep_symbolize_keys!
+
+    if response[:message_id]
+      @text_message.update sms_message_id: response[:message_id]
+      # send action cable message
+    else
+      raise "message failed to post"
+    end
+  end
+
   def path
     '/dev/provider1'
   end
@@ -78,10 +82,10 @@ class SMSService
   end
 
   def headers
-    headers = { "CONTENT_TYPE" => "application/json" }
+    {"CONTENT_TYPE" => "application/json"}
   end
 
   def options
-    { body: @params.to_json, headers: headers }
+    {body: @params.to_json, headers: headers}
   end
 end
