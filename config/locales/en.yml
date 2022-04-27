@@ -31,3 +31,10 @@
 
 en:
   hello: "Hello world"
+  sms_status:
+    failed_save: "Failed to save delivered text message. Error: "
+    max_attempts_reached: "Failed to send text message, maximum attempts reached. Please try again later."
+    failed_and_will_retry: "Failed to send text message after several attempts, retrying with a new SMS provider"
+    unknown_status_error: "Failed to send SMS message, unknown status. Please try again later"
+    invalid_phone_number:  "Invalid phone number"
+

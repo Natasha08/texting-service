@@ -1,0 +1,12 @@
+defaults: &defaults
+  SMS_PROVIDER: your_sms_provider_url
+  SMS_CALLBACK_DOMAIN: your_sms_callback_domain
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults
