@@ -1,14 +1,19 @@
 require 'rails_helper'
 
 describe 'Text Messages' do
+  let!(:user) { create :user }
+  let(:stubbed_token) { JwtService.issue({user_id: user.id}) }
+  let(:auth_headers) { { 'Authorization' => "Bearer #{stubbed_token}" } }
+
   context "#index" do
     let!(:text_messages) { create_list :text_message, 3 }
 
-    before { get "/api/v1/text_messages" }
+    before do
+      get "/api/v1/text_messages", headers: auth_headers
+    end
 
     it "responds with status 200" do
       expect(response.code).to eq("200")
-      # expect(response_json).to include(text_messages)
     end
   end
 
@@ -21,7 +26,7 @@ describe 'Text Messages' do
           body: {message_id: sms_message_id}.to_json,
           headers: {"Content-Type" => "application/json"}
         })
-      post "/api/v1/text_messages", params: {text: "This is a great message", to_number: "555-555-5555"}
+      post "/api/v1/text_messages", params: {text: "This is a great message", to_number: "555-555-5555"}, headers: auth_headers
     end
 
     it "responds with status 200" do
@@ -29,13 +34,26 @@ describe 'Text Messages' do
       expect(response.code).to eq("200")
       expect(text_message.sms_message_id).to eq sms_message_id
 
-      post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}
+      post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}, headers: auth_headers
 
       expect(response.code).to eq("204")
       updated_message = text_message.reload
       expect(updated_message.status).to eq "delivered"
       expect(updated_message.resolved).to eq true
       expect(updated_message.sms_message_id).to eq sms_message_id
+    end
+  end
+
+  context "invalid jwt token" do
+    let(:invalid_headers) { { 'Authorization' => "Bearer fake-token" } }
+
+    before do
+      post "/api/v1/text_messages", params: {text: "This is a great message", to_number: "555-555-5555"}, headers: invalid_headers
+    end
+
+    it "responds with unathorized" do
+      expect(response.code).to eq "401"
+      expect(response_json[:error]).to eq "Unauthorized"
     end
   end
 
@@ -55,7 +73,7 @@ describe 'Text Messages' do
       end
 
       it "it updates the text message" do
-        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}
+        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}, headers: auth_headers
 
         expect(response.code).to eq("204")
         updated_message = text_message.reload
@@ -90,7 +108,7 @@ describe 'Text Messages' do
         expect(text_message.resolved).to eq false
         expect(text_message.sms_message_id).to eq sms_message_id
 
-        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}
+        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}, headers: auth_headers
 
         updated_message = text_message.reload
         expect(response.code).to eq("204")
@@ -131,7 +149,7 @@ describe 'Text Messages' do
       let!(:text_message) { create :text_message, status: original_status, resolved: true }
 
       it "it does not update the text message" do
-        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "failure"}
+        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "failure"}, headers: auth_headers
 
         expect(response.code).to eq("204")
         expect(text_message.status).to eq original_status

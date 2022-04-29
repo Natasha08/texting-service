@@ -15,7 +15,7 @@ class SMSService
     @params = {
       message: text_message[:text],
       to_number: text_message[:to_number],
-      callback_url: "#{ENV.fetch('SMS_CALLBACK_DOMAIN', nil)}/api/v1/delivery_status"
+      callback_url: "#{callback_url}/api/v1/delivery_status"
     }
   end
 
@@ -87,5 +87,9 @@ class SMSService
 
   def options
     {body: @params.to_json, headers: headers}
+  end
+
+  def callback_url
+    ENV.fetch('SMS_CALLBACK_DOMAIN', nil)
   end
 end

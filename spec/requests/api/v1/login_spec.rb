@@ -24,7 +24,7 @@ describe 'Login' do
     end
 
     context "when the email is incorrect" do
-      fit "responds with a 404 error" do
+      it "responds with a 404 error" do
         post "/api/v1/auth/login", params: {email: 'incorrect_email@example.com', password: 'password'}
         expect(response.code).to eq("422")
         expect(response_json).to_not have_key(:user)
