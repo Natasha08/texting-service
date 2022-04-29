@@ -1,12 +1,12 @@
 class API::V1::TextMessagesController < ApplicationController
-  before_action :require_login
+  before_action :require_login, except: :delivery_status
 
   def index
     render json: TextMessage.all
   end
 
   def create
-    text_message = TextMessage.new(create_message_params)
+    text_message = TextMessage.new(create_message_params.merge(sender: current_user))
     SMSService.new(text_message).send
 
     render json: text_message

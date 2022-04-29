@@ -6,7 +6,7 @@ describe 'Text Messages' do
   let(:auth_headers) { { 'Authorization' => "Bearer #{stubbed_token}" } }
 
   context "#index" do
-    let!(:text_messages) { create_list :text_message, 3 }
+    let!(:text_messages) { create_list :text_message, 3, sender: user }
 
     before do
       get "/api/v1/text_messages", headers: auth_headers
@@ -14,6 +14,13 @@ describe 'Text Messages' do
 
     it "responds with status 200" do
       expect(response.code).to eq("200")
+      expect(response_json.count).to eq text_messages.count
+
+      response_json.each do |t|
+        message = text_messages.find(t[:id]).first
+        expect(message.sender).to eq user
+        expect(message.text).to_not be nil
+      end
     end
   end
 
@@ -33,14 +40,30 @@ describe 'Text Messages' do
       text_message = TextMessage.find_by to_number: "555-555-5555"
       expect(response.code).to eq("200")
       expect(text_message.sms_message_id).to eq sms_message_id
-
-      post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}, headers: auth_headers
+      post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}
 
       expect(response.code).to eq("204")
       updated_message = text_message.reload
       expect(updated_message.status).to eq "delivered"
       expect(updated_message.resolved).to eq true
       expect(updated_message.sms_message_id).to eq sms_message_id
+    end
+
+    context "unauthorized user" do
+      let(:sms_message_id) { 'kK30-N03M-LSD9-CKW2' }
+
+      before do
+        stub_request(:post, "#{ENV.fetch('SMS_PROVIDER', nil)}/dev/provider1")
+          .to_return({
+            body: {message_id: sms_message_id}.to_json,
+            headers: {"Content-Type" => "application/json"}
+          })
+        post "/api/v1/text_messages", params: {text: "This is also a great message", to_number: "555-555-5555"}
+      end
+
+      it "responds with a 401" do
+        expect(response.code).to eq("401")
+      end
     end
   end
 
@@ -60,7 +83,7 @@ describe 'Text Messages' do
   context "#delivery_status" do
     context "when there is a new status update" do
       let(:sms_message_id) { '2342-2993-f223-123v' }
-      let!(:text_message) { create :text_message, sms_message_id: nil }
+      let!(:text_message) { create :text_message, sms_message_id: nil, sender: user }
 
       before do
         stub_request(:post, "#{ENV.fetch('SMS_PROVIDER', nil)}/dev/provider1")
@@ -73,7 +96,7 @@ describe 'Text Messages' do
       end
 
       it "it updates the text message" do
-        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}, headers: auth_headers
+        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}
 
         expect(response.code).to eq("204")
         updated_message = text_message.reload
@@ -85,7 +108,7 @@ describe 'Text Messages' do
 
     context "text message fails to post to the provider" do
       let(:sms_message_id) { '3j29-j20f-f223-123v' }
-      let!(:text_message) { create :text_message, sms_message_id: nil }
+      let!(:text_message) { create :text_message, sms_message_id: nil, sender: user }
 
       before do
         stub_request(:post, "#{ENV.fetch('SMS_PROVIDER', nil)}/dev/provider1")
@@ -108,7 +131,7 @@ describe 'Text Messages' do
         expect(text_message.resolved).to eq false
         expect(text_message.sms_message_id).to eq sms_message_id
 
-        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}, headers: auth_headers
+        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}
 
         updated_message = text_message.reload
         expect(response.code).to eq("204")
@@ -119,7 +142,7 @@ describe 'Text Messages' do
     end
 
     context "text message fails to post to both providers" do
-      let!(:text_message) { create :text_message, sms_message_id: nil }
+      let!(:text_message) { create :text_message, sms_message_id: nil, sender: user }
 
       before do
         stub_request(:post, "#{ENV.fetch('SMS_PROVIDER', nil)}/dev/provider1")
@@ -146,10 +169,10 @@ describe 'Text Messages' do
 
     context "when the status update is old" do
       let(:original_status) { "delivered" }
-      let!(:text_message) { create :text_message, status: original_status, resolved: true }
+      let!(:text_message) { create :text_message, status: original_status, resolved: true, sender: user }
 
       it "it does not update the text message" do
-        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "failure"}, headers: auth_headers
+        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "failure"}
 
         expect(response.code).to eq("204")
         expect(text_message.status).to eq original_status

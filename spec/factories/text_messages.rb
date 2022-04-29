@@ -3,5 +3,6 @@ FactoryBot.define do
     text { FFaker::HipsterIpsum.sentence }
     sms_message_id { FFaker::Guid.guid }
     to_number { FFaker::PhoneNumber.short_phone_number }
+    association :sender, factory: :user
   end
 end

@@ -14,6 +14,8 @@ class ApplicationController < ActionController::API
   def token
     header = request.headers["Authorization"]
     header.split('Bearer ').last
+  rescue NoMethodError
+    return nil
   end
 
   def current_user_id
@@ -25,10 +27,14 @@ class ApplicationController < ActionController::API
       return nil
     end
 
-    payload["user_id"]
+    payload["user_id"] if payload.present?
   end
 
   def require_login
     render json: {error: 'Unauthorized'}, status: :unauthorized if !valid_token?
+  end
+
+  def current_user
+    User.find current_user_id
   end
 end

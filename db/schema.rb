@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_04_28_160400) do
+ActiveRecord::Schema[7.0].define(version: 2022_04_29_133312) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -30,6 +30,8 @@ ActiveRecord::Schema[7.0].define(version: 2022_04_28_160400) do
     t.boolean "resolved", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "sender_id", null: false
+    t.index ["sender_id"], name: "index_text_messages_on_sender_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -44,4 +46,5 @@ ActiveRecord::Schema[7.0].define(version: 2022_04_28_160400) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "text_messages", "users", column: "sender_id"
 end
