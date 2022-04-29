@@ -52,7 +52,8 @@ describe 'api/v1/registrations', type: :request do
       end
 
       response(422, 'invalid request') do
-        schema type: :string,
+        let(:user) {}
+        schema type: :object,
           properties: {
             error: { type: :string }
           },
