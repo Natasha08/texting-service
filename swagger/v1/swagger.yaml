@@ -6,7 +6,9 @@ info:
 paths:
   "/api/v1/auth/signup":
     post:
-      summary: create user
+      summary: create signup
+      tags:
+      - User
       parameters: []
       responses:
         '200':
@@ -21,11 +23,12 @@ paths:
                     properties:
                       email:
                         type: string
-                  id:
-                    type: integer
+                      password:
+                        type: string
                 example:
                   user:
                     email: natasha@example.com
+                    password: password
         '422':
           description: invalid request
           content:
@@ -33,7 +36,8 @@ paths:
               schema:
                 type: string
                 properties:
-                  error: string
+                  error:
+                    type: string
                 example:
                   error: Email can't be blank
       requestBody:
@@ -55,8 +59,7 @@ paths:
                   email: natasha@example.com
                   password: password
               required:
-              - email
-              - password
+              - user
 definitions:
   user:
     type: object
@@ -69,4 +72,4 @@ servers:
 - url: https://{defaultHost}
   variables:
     defaultHost:
-      default: www.example.com
+      default: localhost:3000

@@ -1,13 +1,12 @@
 require 'rails_helper'
 
 describe 'Signup' do
-  context "#create" do
-    let(:email) { 'natasha@example.com' }
-    it "creates a user" do
-      user_params = {user: {email: email, password: 'password'}}
+  let!(:email) { 'natasha@example.com' }
 
+  context "#create" do
+    it "creates a user" do
       expect do
-        post "/api/v1/auth/signup", params: user_params
+        post "/api/v1/auth/signup", params: {user: {email: email, password: 'password'}}
       end.to change { User.count }.by 1
 
       user = response_json[:user]
@@ -16,11 +15,8 @@ describe 'Signup' do
 
     context "missing password" do
       it "sends an error message" do
-        user_params = {user: {email: email, password: ''}}
-        post "/api/v1/auth/signup", params: user_params
-
         expect do
-          post "/api/v1/auth/signup", params: user_params
+          post "/api/v1/auth/signup", params: {user: {email: email, password: ''}}
         end.to change { User.count }.by 0
 
         expect(response.code).to eq("422")
@@ -31,11 +27,8 @@ describe 'Signup' do
 
     context "missing email" do
       it "sends an error message" do
-        user_params = {user: {email: "", password: 'password'}}
-        post "/api/v1/auth/signup", params: user_params
-
         expect do
-          post "/api/v1/auth/signup", params: user_params
+          post "/api/v1/auth/signup", params: {user: {email: "", password: 'password'}}
         end.to change { User.count }.by 0
 
         expect(response.code).to eq("422")

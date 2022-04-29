@@ -2,7 +2,8 @@ require 'swagger_helper'
 
 describe 'api/v1/registrations', type: :request do
   path '/api/v1/auth/signup' do
-    post('create user') do
+    post('create signup') do
+      tags "User"
       consumes "application/json"
       produces 'application/json'
 
@@ -25,25 +26,26 @@ describe 'api/v1/registrations', type: :request do
               password: "password"
             }
           },
-          required: ["email", "password"]
+          required: ["user"]
         }
 
       response(200, 'successful') do
+        let(:user) { {user: {email: 'myemail@example.com', password: 'password'}} }
+
         schema type: :object,
-        properties: {
-          user: {
-            type: :object,
-            properties: {
-              email: {
-                type: :string
+          properties: {
+            user: {
+              type: :object,
+              properties: {
+                email: { type: :string },
+                password: { type: :string },
               }
-            }
+            },
           },
-          id: { type: :integer },
-        },
         example: {
           user: {
-            email: "natasha@example.com"
+            email: "natasha@example.com",
+            password: "password"
           }
         }
         run_test!
@@ -51,9 +53,9 @@ describe 'api/v1/registrations', type: :request do
 
       response(422, 'invalid request') do
         schema type: :string,
-        properties: {
-          error: :string
-        },
+          properties: {
+            error: { type: :string }
+          },
         example: {
           error: "Email can't be blank"
         }
