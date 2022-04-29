@@ -1,6 +1,8 @@
 defaults: &defaults
   SMS_PROVIDER: your_sms_provider_url
   SMS_CALLBACK_DOMAIN: your_sms_callback_domain
+  API_SECRET: my_api_secret_key
+  JWT_SECRET: my_api_secret_key
 
 development:
   <<: *defaults

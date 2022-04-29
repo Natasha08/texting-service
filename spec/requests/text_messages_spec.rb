@@ -12,7 +12,7 @@ describe 'Text Messages' do
     end
   end
 
-  context "#create" do
+  context "#create & deliver_status" do
     let(:sms_message_id) { 'k3i2-f02k-8dhq-v8wj' }
 
     before do
@@ -50,11 +50,11 @@ describe 'Text Messages' do
             body: {message_id: sms_message_id}.to_json,
             headers: {"Content-Type" => "application/json"}
           })
+
+        SMSService.new(text_message).send
       end
 
       it "it updates the text message" do
-        SMSService.new(text_message).send
-
         post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}
 
         expect(response.code).to eq("204")
@@ -81,11 +81,11 @@ describe 'Text Messages' do
             body: {status: 204, message_id: sms_message_id}.to_json,
             headers: {"Content-Type" => "application/json"}
           })
+
+        SMSService.new(text_message).send
       end
 
       it "it retries with the second provider" do
-        SMSService.new(text_message).send
-
         expect(text_message.status).to eq nil
         expect(text_message.resolved).to eq false
         expect(text_message.sms_message_id).to eq sms_message_id
@@ -115,11 +115,11 @@ describe 'Text Messages' do
             body: {status: 502, error: "something went wrong"}.to_json,
             headers: {"Content-Type" => "application/json"}
           })
+
+        SMSService.new(text_message).send
       end
 
       it "it updates the text message" do
-        SMSService.new(text_message).send
-
         expect(text_message.status).to eq "failure"
         expect(text_message.resolved).to eq true
         expect(text_message.sms_message_id).to be nil

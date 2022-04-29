@@ -1,4 +1,4 @@
-class CreateTextMessages < ActiveRecord::Migration[7.0]
+class CreateTextMessages < ActiveRecord::Migration[6.1]
   def change
     create_table :text_messages do |t|
       t.text :text, null: false
