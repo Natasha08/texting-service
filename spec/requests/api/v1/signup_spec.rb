@@ -7,7 +7,7 @@ describe 'Signup' do
       user_params = {user: {email: email, password: 'password'}}
 
       expect do
-        post "/users", params: user_params
+        post "/api/v1/auth/signup", params: user_params
       end.to change { User.count }.by 1
 
       user = response_json[:user]
@@ -17,10 +17,10 @@ describe 'Signup' do
     context "missing password" do
       it "sends an error message" do
         user_params = {user: {email: email, password: ''}}
-        post "/users", params: user_params
+        post "/api/v1/auth/signup", params: user_params
 
         expect do
-          post "/users", params: user_params
+          post "/api/v1/auth/signup", params: user_params
         end.to change { User.count }.by 0
 
         expect(response.code).to eq("422")
@@ -32,10 +32,10 @@ describe 'Signup' do
     context "missing email" do
       it "sends an error message" do
         user_params = {user: {email: "", password: 'password'}}
-        post "/users", params: user_params
+        post "/api/v1/auth/signup", params: user_params
 
         expect do
-          post "/users", params: user_params
+          post "/api/v1/auth/signup", params: user_params
         end.to change { User.count }.by 0
 
         expect(response.code).to eq("422")
