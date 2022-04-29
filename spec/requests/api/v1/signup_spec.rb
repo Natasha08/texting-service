@@ -25,7 +25,7 @@ describe 'Signup' do
 
         expect(response.code).to eq("422")
         expect(response_json).to_not have_key(:user)
-        expect(response_json[:error]).to eq "Password can't be blank"
+        expect(response_json[:error]).to eq I18n.t('errors.login.password')
       end
     end
 
@@ -40,7 +40,7 @@ describe 'Signup' do
 
         expect(response.code).to eq("422")
         expect(response_json).to_not have_key(:user)
-        expect(response_json[:error]).to eq "Email can't be blank"
+        expect(response_json[:error]).to eq I18n.t('errors.login.email')
       end
     end
   end

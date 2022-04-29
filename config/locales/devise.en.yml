@@ -63,3 +63,7 @@ en:
       not_saved:
         one: "1 error prohibited this %{resource} from being saved:"
         other: "%{count} errors prohibited this %{resource} from being saved:"
+    login:
+      failure: "Unable to login. Please check your email or password."
+      email: "Email can't be blank"
+      password: "Password can't be blank"
