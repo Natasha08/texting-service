@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::API
   include RackSessionFix
+  include Pundit::Authorization
   respond_to :json
   before_action :require_login
 

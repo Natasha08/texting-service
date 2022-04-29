@@ -24,7 +24,7 @@ describe 'Text Messages' do
     end
   end
 
-  context "#create & deliver_status" do
+  context "#create" do
     let(:sms_message_id) { 'k3i2-f02k-8dhq-v8wj' }
 
     before do
@@ -40,16 +40,23 @@ describe 'Text Messages' do
       text_message = TextMessage.find_by to_number: "555-555-5555"
       expect(response.code).to eq("200")
       expect(text_message.sms_message_id).to eq sms_message_id
-      post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}
-
-      expect(response.code).to eq("204")
-      updated_message = text_message.reload
-      expect(updated_message.status).to eq "delivered"
-      expect(updated_message.resolved).to eq true
-      expect(updated_message.sms_message_id).to eq sms_message_id
     end
 
-    context "unauthorized user" do
+    context "& delivery_status" do
+      it "responds with status 204" do
+        text_message = TextMessage.find_by to_number: "555-555-5555"
+
+        post "/api/v1/delivery_status", params: {message_id: text_message.sms_message_id, status: "delivered"}
+
+        updated_message = text_message.reload
+        expect(response.code).to eq("204")
+        expect(updated_message.status).to eq "delivered"
+        expect(updated_message.resolved).to eq true
+        expect(updated_message.sms_message_id).to eq sms_message_id
+      end
+    end
+
+    context "unauthenticated user" do
       let(:sms_message_id) { 'kK30-N03M-LSD9-CKW2' }
 
       before do

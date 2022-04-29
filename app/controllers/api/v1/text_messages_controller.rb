@@ -2,7 +2,8 @@ class API::V1::TextMessagesController < ApplicationController
   before_action :require_login, except: :delivery_status
 
   def index
-    render json: TextMessage.all
+    text_messages = policy_scope TextMessage.all
+    render json: text_messages
   end
 
   def create
