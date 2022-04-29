@@ -14,7 +14,6 @@ describe 'Login' do
     end
 
     context "when the password is incorrect" do
-
       it "responds with a 422 error" do
         post "/api/v1/auth/login", params: {email: user.email, password: 'incorrect password'}
         expect(response.code).to eq("422")
