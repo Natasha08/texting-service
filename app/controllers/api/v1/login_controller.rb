@@ -8,12 +8,12 @@ class API::V1::LoginController < ApplicationController
     if user.valid_password?(params[:password])
       token = JwtService.issue({user_id: user.id, exp: exp})
 
-      render json: { token: token, exp: exp }, status: 200
+      render json: {token: token, exp: exp}, status: 200
     else
-      render json: { error: login_error }, status: 422
+      render json: {error: login_error}, status: 422
     end
   rescue
-    render json: { error: login_error }, status: 422
+    render json: {error: login_error}, status: 422
   end
 
   private
@@ -23,6 +23,6 @@ class API::V1::LoginController < ApplicationController
   end
 
   def exp
-    (Time.now +  1.day).to_i
+    (Time.now + 1.day).to_i
   end
 end

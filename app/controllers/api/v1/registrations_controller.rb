@@ -4,17 +4,17 @@ class API::V1::RegistrationsController < Devise::RegistrationsController
 
   private
 
-  def respond_with(resource, _opts={})
+  def respond_with resource, _opts={}
     register_success && return if resource.persisted?
 
     register_failed
   end
 
   def register_success
-    render json: { user: resource, status: :ok }
+    render json: {user: resource, status: :ok}
   end
 
   def register_failed
-    render json: { error: resource.errors.full_messages.to_sentence }, status: 422
+    render json: {error: resource.errors.full_messages.to_sentence}, status: 422
   end
 end

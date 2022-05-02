@@ -5,7 +5,7 @@ class ApplicationController < ActionController::API
   respond_to :json
   before_action :require_login
 
-  DECODE_EXCEPTIONS = [JWT::VerificationError, JWT::DecodeError]
+  DECODE_EXCEPTIONS = [JWT::VerificationError, JWT::DecodeError].freeze
 
   private
 
@@ -17,17 +17,14 @@ class ApplicationController < ActionController::API
     header = request.headers["Authorization"]
     header.split('Bearer ').last
   rescue NoMethodError
-    return nil
+    nil
   end
 
   def decoded_token
-    begin
-      JwtService.verify token
-
-    rescue *DECODE_EXCEPTIONS => e
-      puts "DECODING ERROR: ", e
-      return nil
-    end
+    JwtService.verify token
+  rescue *DECODE_EXCEPTIONS => e
+    puts "DECODING ERROR: ", e
+    nil
   end
 
   def current_user_id
@@ -41,7 +38,7 @@ class ApplicationController < ActionController::API
   end
 
   def require_login
-    render json: {error: 'Unauthorized'}, status: :unauthorized if !valid_token?
+    render json: {error: 'Unauthorized'}, status: :unauthorized unless valid_token?
     set_channel_cookie
   end
 

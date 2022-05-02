@@ -4,7 +4,7 @@ describe 'Text Messages' do
   let!(:user) { create :user }
   let(:exp) { (Time.now + 1.day).to_i }
   let(:stubbed_token) { JwtService.issue({user_id: user.id, exp: exp}) }
-  let(:auth_headers) { { 'Authorization' => "Bearer #{stubbed_token}" } }
+  let(:auth_headers) { {'Authorization' => "Bearer #{stubbed_token}"} }
 
   context "#index" do
     let!(:text_messages) { create_list :text_message, 3, sender: user }
@@ -77,7 +77,7 @@ describe 'Text Messages' do
   end
 
   context "invalid jwt token" do
-    let(:invalid_headers) { { 'Authorization' => "Bearer fake-token" } }
+    let(:invalid_headers) { {'Authorization' => "Bearer fake-token"} }
 
     before do
       post "/api/v1/text_messages", params: {text: "This is a great message", to_number: "555-555-5555"}, headers: invalid_headers

@@ -1,7 +1,7 @@
 module ApplicationCable
   class Connection < ActionCable::Connection::Base
     identified_by :current_user
-    DECODE_EXCEPTIONS = [JWT::VerificationError, JWT::DecodeError, NoMethodError]
+    DECODE_EXCEPTIONS = [JWT::VerificationError, JWT::DecodeError, NoMethodError].freeze
 
     def connect
       self.current_user = find_verified_user
@@ -10,16 +10,14 @@ module ApplicationCable
     private
 
     def find_verified_user
-      begin
-        header_array = request.headers[:HTTP_SEC_WEBSOCKET_PROTOCOL].split(',')
-        token = header_array[header_array.length-1]
-        decoded_token = JwtService.verify token.strip
-        current_user = User.find((decoded_token["user_id"]))
+      header_array = request.headers[:HTTP_SEC_WEBSOCKET_PROTOCOL].split(',')
+      token = header_array[header_array.length - 1]
+      decoded_token = JwtService.verify token.strip
+      current_user = User.find((decoded_token["user_id"]))
 
-        current_user ? current_user : reject_unauthorized_connection
-      rescue *DECODE_EXCEPTIONS
-        reject_unauthorized_connection
-      end
+      current_user || reject_unauthorized_connection
+    rescue *DECODE_EXCEPTIONS
+      reject_unauthorized_connection
     end
   end
 end
