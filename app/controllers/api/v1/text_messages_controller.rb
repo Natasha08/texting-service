@@ -15,8 +15,10 @@ class API::V1::TextMessagesController < ApplicationController
     if text_message.save
       render json: text_message
     else
-      render json: error: {
-        message: "#{I18n.t('sms_status.failed_save')} #{@text_message.errors.full_messages.to_sentence}"
+      render json: {
+        error: {
+          message: "#{I18n.t('sms_status.failed_save')} #{@text_message.errors.full_messages.to_sentence}"
+        }
       }
     end
   end
