@@ -2,7 +2,8 @@ require 'rails_helper'
 
 describe 'Text Messages' do
   let!(:user) { create :user }
-  let(:stubbed_token) { JwtService.issue({user_id: user.id}) }
+  let(:exp) { (Time.now + 1.day).to_i }
+  let(:stubbed_token) { JwtService.issue({user_id: user.id, exp: exp}) }
   let(:auth_headers) { { 'Authorization' => "Bearer #{stubbed_token}" } }
 
   context "#index" do
@@ -100,7 +101,7 @@ describe 'Text Messages' do
             headers: {"Content-Type" => "application/json"}
           })
 
-        SMSService.new(text_message).send
+        SMSService.new(text_message, user).send
       end
 
       it "it updates the text message" do
@@ -131,7 +132,7 @@ describe 'Text Messages' do
             headers: {"Content-Type" => "application/json"}
           })
 
-        SMSService.new(text_message).send
+        SMSService.new(text_message, user).send
       end
 
       it "it retries with the second provider" do
@@ -165,7 +166,7 @@ describe 'Text Messages' do
             headers: {"Content-Type" => "application/json"}
           })
 
-        SMSService.new(text_message).send
+        SMSService.new(text_message, user).send
       end
 
       it "it updates the text message" do

@@ -10,13 +10,15 @@ class API::V1::TextMessagesController < ApplicationController
     text_message = TextMessage.new(create_message_params.merge(sender: current_user, status: 'pending'))
     authorize text_message
 
-    SMSService.new(text_message).send
+    SMSService.new(text_message, current_user).send
 
     render json: text_message
   end
 
   def delivery_status
     @text_message = TextMessage.find_by(sms_message_id: params[:message_id])
+
+    return head :no_content if @text_message.blank?
     return head :no_content if @text_message.resolved
 
     manage_status_changes
@@ -26,7 +28,7 @@ class API::V1::TextMessagesController < ApplicationController
   private
 
   def notify **kwargs
-    # send action cable message
+    SMSUpdateJob.perform_later kwargs, @sms_service.current_user_id
   end
 
   def delivered_status_response

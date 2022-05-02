@@ -33,6 +33,10 @@ Rails.application.configure do
   config.hosts << /[a-z0-9-]+\.ngrok\.io/
 
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+  config.action_cable.allowed_request_origins = [/http:\/\/*/, /https:\/\/*/, nil]
+
+
+  config.session_store :cookie_store, expire_after: 1.days
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local

@@ -6,11 +6,19 @@ class SMSService
 
   @@instances = []
 
-  def initialize text_message
+  def initialize text_message, user
+    if text_message.blank?
+      raise "SMS Service requires a text message active record paramater"
+    end
+    if user.blank?
+      raise "SMS Service requires a user paramater"
+    end
+
     @@instances << self
     @text_message = text_message
     @attempts = 0
     @retry_attempted = false
+    @current_user = user
 
     @params = {
       message: text_message[:text],
@@ -33,28 +41,27 @@ class SMSService
     @text_message.sms_message_id
   end
 
+  def current_user_id
+    @current_user.id
+  end
+
   def max_attempts_reached?
     @text_message.status == "failed" && @retry_attempted
   end
 
   def send
-    if @params[:to_number].blank? || @params[:message].blank?
-      {status: 'invalid'}
-      # send action cable message
-    else
-      @attempts += 1
+    @attempts += 1
 
-      begin
-        send_message
-      rescue
-        retry if (@attempts += 1) < 3
+    begin
+      send_message
+    rescue
+      retry if (@attempts += 1) < 3
 
-        if @retry_attempted
-          # send action cable message
-          @text_message.update(status: "failure", resolved: true)
-        else
-          retry_send
-        end
+      if @retry_attempted
+        @text_message.update(status: "failure", resolved: true)
+        SMSUpdateJob.perform_later @text_message, @current_user.id
+      else
+        retry_send
       end
     end
   end
@@ -67,7 +74,7 @@ class SMSService
 
     if response[:message_id]
       @text_message.update sms_message_id: response[:message_id]
-      # send action cable message
+      SMSUpdateJob.perform_later @text_message, @current_user.id
     else
       raise "message failed to post"
     end
