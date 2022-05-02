@@ -1,6 +1,8 @@
 ## Test Service API
 The purpose of this API is to receive text messages from users, forward them to an SMS Provider and store the provider response for user consumption. See the [Text Messaging SPA](https://github.com/Natasha08/texting-service-spa) for a UI to login, send messages and view the responses.
 
+When you interact with the API via a client, i.e. [Text Messaging SPA](https://github.com/Natasha08/texting-service-spa), the API will automatically push updates to the client via Web Sockets when the SMS Provider updates the API.
+
 [![CircleCI](https://circleci.com/gh/Natasha08/texting-service/tree/main.svg?style=shield&circle-token=fd48b96294fe267e44625c3ec162f43208fe6623)](https://circleci.com/gh/Natasha08/texting-service/tree/main)
 
 ## Technology and Stack
