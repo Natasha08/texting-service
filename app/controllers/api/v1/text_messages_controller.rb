@@ -64,6 +64,7 @@ class API::V1::TextMessagesController < ApplicationController
   end
 
   def unknown_status_error
+    @text_message.update(status: "failed", resolved: true)
     notify error: {message: I18n.t('sms_status.unknown_status_error')}, message: @text_message
   end
 
