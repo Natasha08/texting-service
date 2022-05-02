@@ -12,7 +12,13 @@ class API::V1::TextMessagesController < ApplicationController
 
     SMSService.new(text_message, current_user).send
 
-    render json: text_message
+    if text_message.save
+      render json: text_message
+    else
+      render json: error: {
+        message: "#{I18n.t('sms_status.failed_save')} #{@text_message.errors.full_messages.to_sentence}"
+      }
+    end
   end
 
   def delivery_status
