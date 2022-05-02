@@ -43,28 +43,28 @@ class API::V1::TextMessagesController < ApplicationController
     if @text_message.update update_message_params.merge(resolved: true)
       notify message: @text_message
     else
-      notify error: {message: "#{I18n.t('sms_status.failed_save')} #{@text_message.errors.full_messages.to_sentence}"}
+      notify error: {message: "#{I18n.t('sms_status.failed_save')} #{@text_message.errors.full_messages.to_sentence}"}, message: @text_message
     end
   end
 
   def failed_status_response
     if @sms_service.max_attempts_reached?
       @text_message.update(status: "failed", resolved: true)
-      notify error: {message: I18n.t('sms_status.max_attempts_reached')}
+      notify error: {message: I18n.t('sms_status.max_attempts_reached')}, message: @text_message
     else
       @text_message.update(status: "failed")
       @sms_service.retry_send
-      notify error: {message: I18n.t('sms_status.failed_and_will_retry')}
+      notify error: {message: I18n.t('sms_status.failed_and_will_retry')}, message: @text_message
     end
   end
 
   def invalid_status_response
     @text_message.update(status: "invalid", resolved: true)
-    notify error: {message: I18n.t('sms_status.invalid_phone_number')}
+    notify error: {message: I18n.t('sms_status.invalid_phone_number')}, message: @text_message
   end
 
   def unknown_status_error
-    notify error: {message: I18n.t('sms_status.unknown_status_error')}
+    notify error: {message: I18n.t('sms_status.unknown_status_error')}, message: @text_message
   end
 
   def manage_status_changes

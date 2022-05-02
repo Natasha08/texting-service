@@ -25,6 +25,20 @@ When you interact with the API via a client, i.e. [Text Messaging SPA](https://g
 - `bundle exec rails server`
 - View site at `http://localhost:3000/`
 
+
+### Local response to SMS Provider
+The SMS Provider will need access to a localhost port in order to call the API method `text_messages#delivery_later`
+One way to do this is [ngrok](https://github.com/inconshreveable/ngrok)
+
+
+#### For Mac OS
+`brew install --cask ngrok` -- install
+
+`ngrok http 3000` -- In a tab terminal, run this command. `3000` is the port that the server is running on.
+
+When it is running, copy the url for `Forwarding`, and save in your `application.yml` as the `SMS_CALLBACK_DOMAIN`
+
+
 ## Testing
 - `bundle exec rspec`
 
