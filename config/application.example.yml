@@ -1,7 +1,7 @@
 default: &default
-  SMS_PROVIDER: your_sms_provider_url
-  SMS_CALLBACK_DOMAIN: your_sms_callback_domain
-  JWT_SECRET: your_jwt_secret_key
+  SMS_PROVIDER: https://jo3kcwlvke.execute-api.us-west-2.amazonaws.com
+  SMS_CALLBACK_DOMAIN: http:localhost:8000
+  JWT_SECRET_KEY: a609547e66466f0a5b19892bc0551334452afd1466046959798f2f7d3463ecc2134b0c4922beee5e63d6d0576d607c97f76cfcd7c0c30c8a79ce55eceef80661
   DOMAIN: localhost:3000
 
 development:
