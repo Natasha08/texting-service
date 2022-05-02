@@ -37,15 +37,13 @@ describe 'api/v1/registrations', type: :request do
             user: {
               type: :object,
               properties: {
-                email: { type: :string },
-                password: { type: :string },
+                email: { type: :string }
               }
             },
           },
         example: {
           user: {
-            email: "natasha@example.com",
-            password: "password"
+            email: "natasha@example.com"
           }
         }
         run_test!

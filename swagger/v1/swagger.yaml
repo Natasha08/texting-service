@@ -23,18 +23,15 @@ paths:
                     properties:
                       email:
                         type: string
-                      password:
-                        type: string
                 example:
                   user:
                     email: natasha@example.com
-                    password: password
         '422':
           description: invalid request
           content:
             application/json:
               schema:
-                type: string
+                type: object
                 properties:
                   error:
                     type: string

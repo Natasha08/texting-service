@@ -40,6 +40,7 @@ describe 'Text Messages' do
       text_message = TextMessage.find_by to_number: "555-555-5555"
       expect(response.code).to eq("200")
       expect(text_message.sms_message_id).to eq sms_message_id
+      expect(text_message.status).to eq "pending"
     end
 
     context "& delivery_status" do

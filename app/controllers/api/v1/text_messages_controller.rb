@@ -7,7 +7,9 @@ class API::V1::TextMessagesController < ApplicationController
   end
 
   def create
-    text_message = TextMessage.new(create_message_params.merge(sender: current_user))
+    text_message = TextMessage.new(create_message_params.merge(sender: current_user, status: 'pending'))
+    authorize text_message
+
     SMSService.new(text_message).send
 
     render json: text_message
