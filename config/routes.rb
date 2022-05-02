@@ -14,4 +14,6 @@ Rails.application.routes.draw do
       post 'delivery_status', to: 'text_messages#delivery_status'
     end
   end
+
+  root to: 'api/v1/home#show'
 end
